@@ -1,11 +1,20 @@
 const net = require('net');
-// var os = require("os");
-// var hostaddress = os.hostname();
+
+console.log('\n\nCL process.argv')
+console.log(process.argv)
+let header = '\n\nHTTP/1.1 200 OK\n\nServer: SPARTASERVE'
+// let slashIndex = process.argv[2].indexOf("/");
+// let host = process.argv[2].slice(0, slashIndex);
+// let path = process.argv[2].slice(slashIndex);
+
 let clients = [];
 
-
-
 const server = net.createServer(client => {
+
+  client.write(header)
+  // client.write('\n\nHTTP/1.1 200 OK\n\nServer: SpartaServe');
+  // client.write("GET " + path + " HTTP/1.1\nhost: " + host);
+
   console.log('CL client.remoteAddress =', client.remoteAddress)
   console.log('CL client.remotePort =', client.remotePort)
   console.log('CL client.username =', client.username)
@@ -15,34 +24,36 @@ const server = net.createServer(client => {
   client.username;
   client.usernameHasBeenSet = false;
   clients.push(client);
-  console.log('CL client =', client)
-  console.log('CL CONNECTED: ' + client.id);
-  console.log('CL CLIENT CONNECTED');
-  // console.log('hostname: ', process.env.host);
-  
-  client.write('\nWELCOME TO SPARTASERVE');
+  // console.log('CL client =', client)
+  console.log('\nCL CONNECTED: ' + client.id);
+  console.log('\nCL CLIENT CONNECTED');
+ 
+  client.write('\n\nWELCOME TO SPARTASERVE');
   client.write('\n')
-  client.write('\nWhat is Your Name')
+  client.write('\nWhat would you like to be called?')
 
    // Handle incoming data:
   client.on('data', data => {
-    console.log('CL data =', data)
+    console.log('\nCL data =', data)
     const dataStr = data.toString().slice(0, -1);
-    console.log('CL dataStr =',dataStr)
+    console.log('\nCL dataStr =',dataStr)
     if (!client.username) {
       if (dataStr.toLowerCase().includes('admin')) {
         client.write(`\nKeyword "ADMIN" reserved. Choose another username: `);
-      } else {
+      } else if (dataStr.toLowerCase().includes('get')) {
+
+      }
+      else {
         client.username = dataStr;
         client.write(`\nHello ${dataStr}\n`);
       }
     }
+    
     handleIncomingData(client, dataStr);
 
     console.log(data.toString());
 
     const msg = data.toString();
-
     clients.forEach(socket => {
       if(client !== socket) {
         socket.write(msg);
@@ -67,8 +78,8 @@ const server = net.createServer(client => {
 
 });
 
-server.listen(6969, () => {
-  console.log('Server listening on port 6969');
+server.listen(8080, () => {
+  console.log('\nServer listening on port 8080');
 });
 
 function handleIncomingData(client, data) {
@@ -82,6 +93,6 @@ function handleIncomingData(client, data) {
       if (client === client) return;
       client.write(`${client.username}: "${data}"`);
     });
-    console.log('SERVER BCAST FROM ' + client.id + ' : ' + data);
+    console.log('\nSERVER BCAST FROM ' + client.id + ' : ' + data);
   }
 }
