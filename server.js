@@ -30,7 +30,7 @@ const server = net.createServer(client => {
  
   client.write('\n\nWELCOME TO SPARTASERVE');
   client.write('\n')
-  client.write('\nWhat would you like to be called?')
+  // client.write('\nWhat would you like to be called?')
 
    // Handle incoming data:
   client.on('data', data => {
@@ -41,7 +41,8 @@ const server = net.createServer(client => {
       if (dataStr.toLowerCase().includes('admin')) {
         client.write(`\nKeyword "ADMIN" reserved. Choose another username: `);
       } else if (dataStr.toLowerCase().includes('get')) {
-
+        // client.write('\nOops, someone is trying to login before you.')
+        client.write('\nWhat would you like to be called?')
       }
       else {
         client.username = dataStr;
@@ -51,12 +52,14 @@ const server = net.createServer(client => {
     
     handleIncomingData(client, dataStr);
 
-    console.log(data.toString());
+    // console.log(data.toString());
 
     const msg = data.toString();
     clients.forEach(socket => {
+      let i = clients.indexOf(client);
       if(client !== socket) {
-        socket.write(msg);
+        // console.log('client.username', client.username)
+        socket.write(`[${client.username}]  ` + msg);
       }
     });
   });
@@ -66,9 +69,9 @@ const server = net.createServer(client => {
   // Remove client when connection has been closed:
   client.on('end', function () {
     let i = clients.indexOf(client);
-    console.log('\nCL i =', i)
+    console.log(`\nCL ${client.username}'s index =`, i)
     clients.splice(i,1);
-    console.log(`Client ${i} Session Ended`)
+    console.log(`Client ${client.username} Session Ended`)
   })
 
    // Allow server to send "ADMIN" messages to all clients:
@@ -94,5 +97,6 @@ function handleIncomingData(client, data) {
       client.write(`${client.username}: "${data}"`);
     });
     console.log('\nSERVER BCAST FROM ' + client.id + ' : ' + data);
+    console.log(`[${client.username}]  ` + data)
   }
 }
